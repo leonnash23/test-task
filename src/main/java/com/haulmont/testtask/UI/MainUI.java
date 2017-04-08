@@ -4,7 +4,10 @@ import com.haulmont.testtask.controller.Controller;
 import com.haulmont.testtask.model.Customer;
 import com.haulmont.testtask.model.Order;
 import com.vaadin.annotations.Theme;
+import com.vaadin.data.Item;
 import com.vaadin.data.util.BeanItemContainer;
+import com.vaadin.data.util.ObjectProperty;
+import com.vaadin.event.SelectionEvent;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.ui.*;
 import com.vaadin.ui.themes.ValoTheme;
@@ -21,11 +24,13 @@ public class MainUI extends UI {
 
     private Grid orderGrid;
 
+    private VerticalLayout customerLayout;
+
 
     @Override
     protected void init(VaadinRequest request) {
-        controller = new Controller();
-        initCustomerGrid();
+        controller = new Controller(this);
+        initCustomerLayout();
         initOrderGrid();
 
         HorizontalLayout layout = new HorizontalLayout();
@@ -33,6 +38,13 @@ public class MainUI extends UI {
         layout.setMargin(true);
         layout.addComponents(customerGrid, orderGrid);
         setContent(layout);
+    }
+
+    private void initCustomerLayout() {
+        initCustomerGrid();
+        customerLayout = new VerticalLayout();
+        Button addButton = new Button("Добавить");
+        addButton.addStyleName("friendly");
     }
 
     private void initOrderGrid(){
@@ -64,6 +76,18 @@ public class MainUI extends UI {
                 customers));
         customerGrid.setWidth("80%");
         customerGrid.setColumns("id", "name", "sname", "fname", "phone");
+        customerGrid.addSelectionListener((SelectionEvent.SelectionListener) selectionEvent -> {
+            addWindow(new CustomerWindow(controller, (Customer) selectionEvent.getSelected().toArray()[0]));
+        });
+    }
+
+    public void updateCustomerGrid(Customer customer){
+        Item item = customerGrid.getContainerDataSource().getItem(customer);
+        item.addItemProperty("name", new ObjectProperty<>(customer.getName()));
+        item.addItemProperty("sname", new ObjectProperty<>(customer.getSname()));
+        item.addItemProperty("fname", new ObjectProperty<>(customer.getFname()));
+        item.addItemProperty("phone", new ObjectProperty<>(customer.getPhone()));
+        customerGrid.clearSortOrder();
     }
 
 

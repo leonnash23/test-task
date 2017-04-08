@@ -16,6 +16,13 @@ public class CustomerService {
             .createEntityManagerFactory("COLIBRI")
             .createEntityManager();
 
+    public Customer add(Customer customer){
+        manager.getTransaction().begin();
+        customer = manager.merge(customer);
+        manager.getTransaction().commit();
+        return customer;
+    }
+
     public Customer get(long id) {
         return manager.find(Customer.class, id);
     }

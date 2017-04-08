@@ -1,5 +1,6 @@
 package com.haulmont.testtask.controller;
 
+import com.haulmont.testtask.UI.MainUI;
 import com.haulmont.testtask.model.Customer;
 import com.haulmont.testtask.model.Order;
 import com.haulmont.testtask.services.CustomerService;
@@ -16,9 +17,12 @@ public class Controller {
 
     private final OrderService orderService;
 
-    public Controller(){
+    private final MainUI mainUI;
+
+    public Controller(MainUI components){
         this.customerService = new CustomerService();
         this.orderService = new OrderService();
+        this.mainUI = components;
     }
 
     public List<Customer> getAllCustomers(){
@@ -29,5 +33,18 @@ public class Controller {
         return  orderService.getAll();
     }
 
+
+    public void updateCustomer(Customer customer,
+                               String textName,
+                               String textSname,
+                               String textFname,
+                               String textPhone) {
+        customer.setName(textName);
+        customer.setSname(textSname);
+        customer.setFname(textFname);
+        customer.setPhone(Long.valueOf(textPhone));
+        customerService.add(customer);
+        mainUI.updateCustomerGrid(customer);
+    }
 
 }
