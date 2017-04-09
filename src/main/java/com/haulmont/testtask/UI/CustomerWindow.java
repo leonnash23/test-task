@@ -5,6 +5,7 @@ import com.haulmont.testtask.UI.validator.StringOnlyValidator;
 import com.haulmont.testtask.controller.Controller;
 import com.haulmont.testtask.model.Customer;
 import com.vaadin.data.Validator;
+import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.*;
 
@@ -12,102 +13,210 @@ import com.vaadin.ui.*;
  * Created by leonid on 07.04.17.
  */
 public class CustomerWindow extends Window {
+
     private Controller controller;
+
     private Customer customer;
 
-    public CustomerWindow(Controller controller, Customer customer){
+    private Label labelName;
+    private Label labelSname;
+    private Label labelFname;
+    private Label labelPhone;
+
+    private Label textName;
+    private Label textSname;
+    private Label textFname;
+    private Label textPhone;
+
+    private TextField inputName;
+    private TextField inputSname;
+    private TextField inputFname;
+    private TextField inputPhone;
+
+    private Button redactionButton;
+    private Button cancelButton;
+    private Button saveButton;
+    private Button removeButton;
+    
+
+
+
+
+    public CustomerWindow(Controller controller, Customer customer, boolean save){
         super();
-        VerticalLayout layout = new VerticalLayout();
-        HorizontalLayout buttonLayout = new HorizontalLayout();
-        buttonLayout.setSizeUndefined();
-        buttonLayout.setSpacing(true);
-        layout.setMargin(true);
-        layout.setSpacing(true);
-        Label labelName = createLabel("Имя:");
-        Label labelSname = createLabel("Отчество:");
-        Label labelFname = createLabel("Фамилия:");
-        Label labelPhone = createLabel("Номер:");
-        Label name = new Label();
-        name.setValue(customer.getName());
-        Label sname = new Label();
-        sname.setValue(customer.getSname());
-        Label fname = new Label();
-        fname.setValue(customer.getFname());
-        Label phone = new Label();
-        phone.setValue(String.valueOf(customer.getPhone()));
-        Button redaction = new Button("Редактировать");
-        redaction.addStyleName("primary");
-        Button cancel = new Button("Отменить");
-        cancel.addClickListener(new Button.ClickListener() {
-            @Override
-            public void buttonClick(Button.ClickEvent clickEvent) {
-                close();
-            }
-        });
-        cancel.addStyleName("danger");
-        redaction.addClickListener(new Button.ClickListener() {
-            @Override
-            public void buttonClick(Button.ClickEvent clickEvent) {
-                TextField textName = new TextField();
-                textName.setValue(customer.getName());
-                textName.addValidator(new StringOnlyValidator("Имя должно содержать только буквы!"));
-                TextField textSname = new TextField();
-                textSname.setValue(customer.getSname());
-                textSname.addValidator(new StringOnlyValidator("Отчество должно содержать только буквы!"));
-                TextField textFname = new TextField();
-                textFname.setValue(customer.getFname());
-                textFname.addValidator(new StringOnlyValidator("Фамилия должно содержать только буквы!"));
-                TextField textPhone = new TextField();
-                textPhone.setValue(String.valueOf(customer.getPhone()));
-                textPhone.addValidator(new PhoneValidator("Некорректный номер телефона!"));
-                layout.replaceComponent(name, textName);
-                layout.replaceComponent(sname, textSname);
-                layout.replaceComponent(fname, textFname);
-                layout.replaceComponent(phone, textPhone);
-                buttonLayout.removeComponent(redaction);
-                buttonLayout.addComponent(cancel);
-                Button save = new Button("Сохранить");
-                save.addStyleName("friendly");
-                save.addClickListener(new Button.ClickListener() {
-                    @Override
-                    public void buttonClick(Button.ClickEvent clickEvent) {
-                        try {
-                            textName.validate();
-                            textSname.validate();
-                            textFname.validate();
-                            textPhone.validate();
-                            controller.updateCustomer(customer,
-                                    textName.getValue(),
-                                    textSname.getValue(),
-                                    textFname.getValue(),
-                                    textPhone.getValue()
-                            );
-                            name.setValue(textName.getValue());
-                            sname.setValue(textSname.getValue());
-                            fname.setValue(textFname.getValue());
-                            phone.setValue(textPhone.getValue());
-                            layout.replaceComponent(textName, name);
-                            layout.replaceComponent(textSname, sname);
-                            layout.replaceComponent(textFname, fname);
-                            layout.replaceComponent(textPhone, phone);
-                            buttonLayout.removeComponent(cancel);
-                            buttonLayout.removeComponent(save);
-                            buttonLayout.addComponent(redaction);
-                        } catch (Validator.InvalidValueException e){
-                            Notification.show(e.getMessage());
-                        }
-                    }
-                });
-                buttonLayout.addComponent(save);
-            }
-        });
-        buttonLayout.addComponent(redaction);
-        layout.addComponents(labelName, name, labelSname, sname,  labelFname, fname, labelPhone, phone, buttonLayout);
+        this.controller = controller;
+        Layout layout = getFieldsLayout(customer, save);
         setWidth("30%");
         setHeight("50%");
         center();
         setModal(true);
         setContent(layout);
+    }
+
+
+    private VerticalLayout getFieldsLayout(Customer customer, boolean save){
+        HorizontalLayout buttonLayout = new HorizontalLayout();
+        VerticalLayout layout = new VerticalLayout();
+        buttonLayout.setSizeUndefined();
+        buttonLayout.setSpacing(true);
+
+        layout.setMargin(true);
+        layout.setSpacing(true);
+
+        labelName = createLabel("Имя:");
+        labelSname = createLabel("Отчество:");
+        labelFname = createLabel("Фамилия:");
+        labelPhone = createLabel("Номер:");
+
+
+        inputName = new TextField();
+        inputSname = new TextField();
+        inputFname = new TextField();
+        inputPhone = new TextField();
+
+        inputName.addValidator(new StringOnlyValidator("Имя должно содержать только буквы!"));
+        inputSname.addValidator(new StringOnlyValidator("Отчество должно содержать только буквы!"));
+        inputFname.addValidator(new StringOnlyValidator("Фамилия должно содержать только буквы!"));
+        inputPhone.addValidator(new PhoneValidator("Некорректный номер телефона!"));
+
+
+        textName = new Label();
+        textSname = new Label();
+        textFname = new Label();
+        textPhone = new Label();
+
+        if(customer != null){
+            inputName.setValue(customer.getName());
+            inputSname.setValue(customer.getSname());
+            inputFname.setValue(customer.getFname());
+            inputPhone.setValue(String.valueOf(customer.getPhone()));
+            textName.setValue(customer.getName());
+            textSname.setValue(customer.getSname());
+            textFname.setValue(customer.getFname());
+            textPhone.setValue(String.valueOf(customer.getPhone()));
+
+        }
+
+
+        redactionButton = new Button("Редактировать");
+        redactionButton.addStyleName("primary");
+        redactionButton.addClickListener(new Button.ClickListener() {
+            @Override
+            public void buttonClick(Button.ClickEvent clickEvent) {
+                replaceTextWithInput(layout);
+                replaceRedactionWithSaveCancel(buttonLayout);
+            }
+        });
+        saveButton = new Button("Сохранить");
+        saveButton.addStyleName("friendly");
+        saveButton.addClickListener(new Button.ClickListener() {
+            @Override
+            public void buttonClick(Button.ClickEvent clickEvent) {
+                try {
+                    inputName.validate();
+                    inputSname.validate();
+                    inputFname.validate();
+                    inputPhone.validate();
+
+                        controller.updateCustomer(customer,
+                                inputName.getValue(),
+                                inputSname.getValue(),
+                                inputFname.getValue(),
+                                inputPhone.getValue()
+                        );
+
+                    textName.setValue(inputName.getValue());
+                    textSname.setValue(inputSname.getValue());
+                    textFname.setValue(inputFname.getValue());
+                    textPhone.setValue(inputPhone.getValue());
+
+                    replaceInputWithText(layout);
+                    replaceSaveCancelWithRedaction(buttonLayout);
+                } catch (Validator.InvalidValueException e){
+                    Notification.show(e.getMessage());
+                }
+            }
+        });
+
+        cancelButton = new Button("Отменить");
+        cancelButton.addStyleName("danger");
+        cancelButton.addClickListener(new Button.ClickListener() {
+            @Override
+            public void buttonClick(Button.ClickEvent clickEvent) {
+                close();
+            }
+        });
+
+
+        removeButton = new Button("Удалить");
+        removeButton.addStyleName("danger");
+        removeButton.addClickListener(new Button.ClickListener() {
+            @Override
+            public void buttonClick(Button.ClickEvent clickEvent) {
+                controller.remove(customer);
+                close();
+            }
+        });
+
+        if(save) {
+
+
+
+            buttonLayout.addComponents(cancelButton,saveButton);
+
+            layout.addComponents(labelName,
+                    inputName,
+                    labelSname,
+                    inputSname,
+                    labelFname,
+                    inputFname,
+                    labelPhone,
+                    inputPhone,
+                    buttonLayout);
+        } else {
+
+            buttonLayout.addComponents(removeButton, redactionButton);
+
+
+            layout.addComponents(labelName,
+                    textName,
+                    labelSname,
+                    textSname,
+                    labelFname,
+                    textFname,
+                    labelPhone,
+                    textPhone,
+                    buttonLayout);
+        }
+        
+
+        
+        return layout;
+    }
+
+
+    private void replaceTextWithInput(Layout layout){
+        layout.replaceComponent(textName, inputName);
+        layout.replaceComponent(textSname, inputSname);
+        layout.replaceComponent(textFname, inputFname);
+        layout.replaceComponent(textPhone, inputPhone);
+    }
+
+    private void replaceInputWithText(Layout layout){
+        layout.replaceComponent(inputName, textName);
+        layout.replaceComponent(inputSname, textSname);
+        layout.replaceComponent(inputFname, textFname);
+        layout.replaceComponent(inputPhone, textPhone);
+    }
+
+    private void replaceRedactionWithSaveCancel(Layout layout){
+        layout.replaceComponent(removeButton,cancelButton);
+        layout.replaceComponent(redactionButton, saveButton);
+    }
+
+    private void replaceSaveCancelWithRedaction(Layout layout){
+        layout.replaceComponent(cancelButton,removeButton);
+        layout.replaceComponent(saveButton, redactionButton);
     }
 
     private Label createLabel(String text){

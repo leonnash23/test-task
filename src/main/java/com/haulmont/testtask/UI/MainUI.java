@@ -9,6 +9,7 @@ import com.vaadin.data.util.BeanItemContainer;
 import com.vaadin.data.util.ObjectProperty;
 import com.vaadin.event.SelectionEvent;
 import com.vaadin.server.VaadinRequest;
+import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.ui.*;
 import com.vaadin.ui.themes.ValoTheme;
 
@@ -36,15 +37,38 @@ public class MainUI extends UI {
         HorizontalLayout layout = new HorizontalLayout();
         layout.setSizeFull();
         layout.setMargin(true);
-        layout.addComponents(customerGrid, orderGrid);
+        layout.addComponents(customerLayout, orderGrid);
         setContent(layout);
     }
 
     private void initCustomerLayout() {
         initCustomerGrid();
         customerLayout = new VerticalLayout();
+        HorizontalLayout buttonLayout = new HorizontalLayout();
+        buttonLayout.setSpacing(true);
+        buttonLayout.setMargin(new MarginInfo(false,false, true, false));
         Button addButton = new Button("Добавить");
         addButton.addStyleName("friendly");
+        addButton.addClickListener(new Button.ClickListener() {
+            @Override
+            public void buttonClick(Button.ClickEvent clickEvent) {
+                addWindow(new CustomerWindow(controller, null, true));
+            }
+        });
+
+//        Button removeButton = new Button("Удалить");
+//        removeButton.addStyleName("danger");
+//        removeButton.addClickListener(new Button.ClickListener() {
+//            @Override
+//            public void buttonClick(Button.ClickEvent clickEvent) {
+//                if(customerGrid.getSelectedRow() != null){
+//                    controller.remove((Customer) customerGrid.getSelectedRow());
+//                }
+//            }
+//        });
+
+        buttonLayout.addComponents(addButton);
+        customerLayout.addComponents(buttonLayout, customerGrid);
     }
 
     private void initOrderGrid(){
@@ -77,16 +101,24 @@ public class MainUI extends UI {
         customerGrid.setWidth("80%");
         customerGrid.setColumns("id", "name", "sname", "fname", "phone");
         customerGrid.addSelectionListener((SelectionEvent.SelectionListener) selectionEvent -> {
-            addWindow(new CustomerWindow(controller, (Customer) selectionEvent.getSelected().toArray()[0]));
+            addWindow(new CustomerWindow(controller, (Customer) selectionEvent.getSelected().toArray()[0], false));
         });
     }
 
-    public void updateCustomerGrid(Customer customer){
-        Item item = customerGrid.getContainerDataSource().getItem(customer);
-        item.addItemProperty("name", new ObjectProperty<>(customer.getName()));
-        item.addItemProperty("sname", new ObjectProperty<>(customer.getSname()));
-        item.addItemProperty("fname", new ObjectProperty<>(customer.getFname()));
-        item.addItemProperty("phone", new ObjectProperty<>(customer.getPhone()));
+    public void updateCustomerGrid(Customer customer, boolean remove){
+        if(remove){
+            customerGrid.getContainerDataSource().removeItem(customer);
+        } else {
+            Item item = customerGrid.getContainerDataSource().getItem(customer);
+            if (item != null) {
+                item.addItemProperty("name", new ObjectProperty<>(customer.getName()));
+                item.addItemProperty("sname", new ObjectProperty<>(customer.getSname()));
+                item.addItemProperty("fname", new ObjectProperty<>(customer.getFname()));
+                item.addItemProperty("phone", new ObjectProperty<>(customer.getPhone()));
+            } else {
+                customerGrid.getContainerDataSource().addItem(customer);
+            }
+        }
         customerGrid.clearSortOrder();
     }
 

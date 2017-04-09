@@ -39,12 +39,19 @@ public class Controller {
                                String textSname,
                                String textFname,
                                String textPhone) {
+        if(customer == null){
+            customer = new Customer();
+        }
         customer.setName(textName);
         customer.setSname(textSname);
         customer.setFname(textFname);
         customer.setPhone(Long.valueOf(textPhone));
-        customerService.add(customer);
-        mainUI.updateCustomerGrid(customer);
+        customer = customerService.add(customer);
+        mainUI.updateCustomerGrid(customer,false);
     }
 
+    public void remove(Customer customer) {
+        customerService.remove(customer);
+        mainUI.updateCustomerGrid(customer, true);
+    }
 }

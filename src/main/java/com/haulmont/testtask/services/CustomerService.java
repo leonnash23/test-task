@@ -27,6 +27,12 @@ public class CustomerService {
         return manager.find(Customer.class, id);
     }
 
+    public void remove(Customer customer){
+        manager.getTransaction().begin();
+        manager.remove(customer);
+        manager.getTransaction().commit();
+    }
+
     public List<Customer> getAll() {
         TypedQuery<Customer> namedQuery = manager.createNamedQuery("Customer.getAll", Customer.class);
         return namedQuery.getResultList();
