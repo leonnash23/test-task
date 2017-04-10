@@ -27,14 +27,23 @@ public class CustomerService {
         return manager.find(Customer.class, id);
     }
 
-    public void remove(Customer customer){
-        manager.getTransaction().begin();
-        manager.remove(customer);
-        manager.getTransaction().commit();
+    public void remove(Customer customer) throws DeleleException {
+        try {
+            manager.getTransaction().begin();
+            manager.remove(manager.contains(customer) ? customer : manager.merge(customer));
+            manager.getTransaction().commit();
+        } catch (javax.persistence.RollbackException e){
+            manager.getTransaction().rollback();
+            throw  new DeleleException();
+        }
     }
 
     public List<Customer> getAll() {
         TypedQuery<Customer> namedQuery = manager.createNamedQuery("Customer.getAll", Customer.class);
         return namedQuery.getResultList();
+    }
+
+    public class DeleleException extends Exception{
+
     }
 }

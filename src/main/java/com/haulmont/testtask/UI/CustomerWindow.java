@@ -4,8 +4,8 @@ import com.haulmont.testtask.UI.validator.PhoneValidator;
 import com.haulmont.testtask.UI.validator.StringOnlyValidator;
 import com.haulmont.testtask.controller.Controller;
 import com.haulmont.testtask.model.Customer;
+import com.haulmont.testtask.services.CustomerService;
 import com.vaadin.data.Validator;
-import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.*;
 
@@ -45,6 +45,7 @@ public class CustomerWindow extends Window {
     public CustomerWindow(Controller controller, Customer customer, boolean save){
         super();
         this.controller = controller;
+        this.customer = customer;
         Layout layout = getFieldsLayout(customer, save);
         setWidth("30%");
         setHeight("50%");
@@ -57,6 +58,8 @@ public class CustomerWindow extends Window {
     private VerticalLayout getFieldsLayout(Customer customer, boolean save){
         HorizontalLayout buttonLayout = new HorizontalLayout();
         VerticalLayout layout = new VerticalLayout();
+
+
         buttonLayout.setSizeUndefined();
         buttonLayout.setSpacing(true);
 
@@ -118,12 +121,21 @@ public class CustomerWindow extends Window {
                     inputFname.validate();
                     inputPhone.validate();
 
-                        controller.updateCustomer(customer,
+                    controller.updateCustomer(customer,
                                 inputName.getValue(),
                                 inputSname.getValue(),
                                 inputFname.getValue(),
                                 inputPhone.getValue()
-                        );
+                    );
+
+
+
+                    if(customer == null){
+                        close(); //TODO think of something better
+                    }
+
+
+
 
                     textName.setValue(inputName.getValue());
                     textSname.setValue(inputSname.getValue());
@@ -153,8 +165,12 @@ public class CustomerWindow extends Window {
         removeButton.addClickListener(new Button.ClickListener() {
             @Override
             public void buttonClick(Button.ClickEvent clickEvent) {
-                controller.remove(customer);
-                close();
+                try {
+                    controller.removeCustomer(customer);
+                    close();
+                } catch (CustomerService.DeleleException e) {
+                    Notification.show("Невозможно удалить клиента, так как для него существуют заказы.");
+                }
             }
         });
 

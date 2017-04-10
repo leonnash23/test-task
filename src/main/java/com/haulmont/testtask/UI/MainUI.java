@@ -62,7 +62,7 @@ public class MainUI extends UI {
 //            @Override
 //            public void buttonClick(Button.ClickEvent clickEvent) {
 //                if(customerGrid.getSelectedRow() != null){
-//                    controller.remove((Customer) customerGrid.getSelectedRow());
+//                    controller.removeCustomer((Customer) customerGrid.getSelectedRow());
 //                }
 //            }
 //        });
@@ -92,6 +92,11 @@ public class MainUI extends UI {
                     order.getCost(),
                     order.getStatus());
         }
+        orderGrid.addSelectionListener((SelectionEvent.SelectionListener) selectionEvent -> {
+           Item item = orderGrid.getContainerDataSource().getItem(orderGrid.getContainerDataSource()
+                   .getIdByIndex(Integer.parseInt(selectionEvent.getSelected().toArray()[0].toString())-1));
+            addWindow(new OrderWindow(controller, controller.getOrderById((Long) item.getItemProperty("id").getValue()), false));
+        });
     }
 
     private void initCustomerGrid(){
@@ -121,6 +126,7 @@ public class MainUI extends UI {
         }
         customerGrid.clearSortOrder();
     }
+
 
 
 }

@@ -34,7 +34,7 @@ public class Controller {
     }
 
 
-    public void updateCustomer(Customer customer,
+    public Customer updateCustomer(Customer customer,
                                String textName,
                                String textSname,
                                String textFname,
@@ -48,10 +48,15 @@ public class Controller {
         customer.setPhone(Long.valueOf(textPhone));
         customer = customerService.add(customer);
         mainUI.updateCustomerGrid(customer,false);
+        return customer;
     }
 
-    public void remove(Customer customer) {
+    public void removeCustomer(Customer customer) throws CustomerService.DeleleException {
         customerService.remove(customer);
         mainUI.updateCustomerGrid(customer, true);
+    }
+
+    public Order getOrderById(Long id){
+        return orderService.get(id);
     }
 }
