@@ -6,6 +6,7 @@ import com.haulmont.testtask.model.Order;
 import com.haulmont.testtask.services.CustomerService;
 import com.haulmont.testtask.services.OrderService;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -58,5 +59,31 @@ public class Controller {
 
     public Order getOrderById(Long id){
         return orderService.get(id);
+    }
+
+    public Order updateOrder(Order order,
+                             Customer customer,
+                             String description,
+                             Date start,
+                             Date end,
+                             String cost,
+                             String status) {
+            if(order == null){
+                order = new Order();
+            }
+            order.setCustomer(customer);
+            order.setDescription(description);
+            order.setStart(start);
+            order.setEnd(end);
+            order.setCost(Double.valueOf(cost));
+            order.setStatus(status);
+            order = orderService.add(order);
+            mainUI.updateOrderGrid(order,false);
+            return order;
+    }
+
+    public void removeOrder(Order order) {
+        orderService.remove(order);
+        mainUI.updateOrderGrid(order, true);
     }
 }

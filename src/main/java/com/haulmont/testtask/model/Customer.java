@@ -13,6 +13,7 @@ import javax.persistence.*;
 @NoArgsConstructor
 @ToString
 @NamedQuery(name = "Customer.getAll", query = "from Customer")
+@EqualsAndHashCode
 public class Customer {
     @Getter @Setter @NonNull
     @Id

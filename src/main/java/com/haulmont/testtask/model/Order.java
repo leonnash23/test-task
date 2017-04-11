@@ -20,6 +20,7 @@ import java.util.Date;
 @RequiredArgsConstructor
 @ToString
 @NamedQuery(name = "Order.getAll", query = "from Order")
+@EqualsAndHashCode
 public class Order {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

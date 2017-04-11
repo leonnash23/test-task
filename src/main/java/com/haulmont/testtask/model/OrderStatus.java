@@ -1,5 +1,7 @@
 package com.haulmont.testtask.model;
 
+import lombok.EqualsAndHashCode;
+
 /**
  * Created by leonid on 04.04.17.
  */
@@ -16,4 +18,6 @@ public enum OrderStatus {
     public String toString() {
         return text;
     }
+
+
 }

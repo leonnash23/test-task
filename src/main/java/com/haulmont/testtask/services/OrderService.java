@@ -28,4 +28,10 @@ public class OrderService {
         manager.getTransaction().commit();
         return order;
     }
+
+    public void remove(Order order) {
+        manager.getTransaction().begin();
+        manager.remove(order);
+        manager.getTransaction().commit();
+    }
 }

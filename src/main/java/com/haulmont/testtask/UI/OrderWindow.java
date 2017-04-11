@@ -1,11 +1,13 @@
 package com.haulmont.testtask.UI;
 
+import com.haulmont.testtask.UI.validator.CostValidator;
 import com.haulmont.testtask.UI.validator.PhoneValidator;
 import com.haulmont.testtask.controller.Controller;
 import com.haulmont.testtask.model.Customer;
 import com.haulmont.testtask.model.Order;
 import com.haulmont.testtask.model.OrderStatus;
 import com.vaadin.data.Validator;
+import com.vaadin.data.validator.DoubleRangeValidator;
 import com.vaadin.shared.ui.combobox.FilteringMode;
 import com.vaadin.shared.ui.datefield.Resolution;
 import com.vaadin.shared.ui.label.ContentMode;
@@ -88,17 +90,19 @@ public class OrderWindow extends Window {
         for(Customer customer:customerList) {
             inputCustomer.getContainerDataSource().addItem(customer);
         }
+        inputCustomer.setSizeFull();
         inputDescription = new TextField();
+        inputDescription.setSizeFull();
         inputStart = new DateField();
         inputStart.setResolution(Resolution.MINUTE);
         inputEnd = new DateField();
         inputEnd.setResolution(Resolution.MINUTE);
         inputCost = new TextField();
-        inputCost.addValidator(new PhoneValidator("Некорректная стоимость!"));
+        inputCost.addValidator(new CostValidator("Некорректная стоимость!"));
         inputStatus = new ComboBox();
-        inputStatus.addItem(OrderStatus.PLANNED);
-        inputStatus.addItem(OrderStatus.COMPLETED);
-        inputStatus.addItem(OrderStatus.ACCEPTED_BY_CLIENT);
+        inputStatus.addItem(OrderStatus.PLANNED.toString());
+        inputStatus.addItem(OrderStatus.COMPLETED.toString());
+        inputStatus.addItem(OrderStatus.ACCEPTED_BY_CLIENT.toString());
 
 
         textCustomer = new Label();
@@ -108,19 +112,26 @@ public class OrderWindow extends Window {
         textCost = new Label();
         textStatus = new Label();
 
+        if(order != null){
+            textCustomer.setValue(String.valueOf(order.getCustomer().getId()));
+            textDecription.setValue(order.getDescription());
+            textStart.setValue(order.getStart().toString());
+            if(order.getEnd() != null) {
+                textEnd.setValue(order.getEnd().toString());
+                inputEnd.setValue(order.getEnd());
+            }
+            textCost.setValue(String.valueOf(order.getCost()));
+            textStatus.setValue(order.getStatus());
+
+            inputCustomer.select(order.getCustomer());
+            inputDescription.setValue(order.getDescription());
+            inputStart.setValue(order.getStart());
+            inputCost.setValue(String.valueOf(order.getCost()));
+            inputStatus.setValue(order.getStatus());
+        }
 
 
-//        if(customer != null){
-//            inputCustomer.setValue(customer.getName());
-//            inputDescription.setValue(customer.getSname());
-//            inputStart.setValue(customer.getFname());
-//            inputEnd.setValue(String.valueOf(customer.getPhone()));
-//            textCustomer.setValue(customer.getName());
-//            textDecription.setValue(customer.getSname());
-//            textStart.setValue(customer.getFname());
-//            textEnd.setValue(String.valueOf(customer.getPhone()));
-//
-//        }
+
 
 
         redactionButton = new Button("Редактировать");
@@ -140,25 +151,32 @@ public class OrderWindow extends Window {
                 try {
                     inputCost.validate();
 
-//                    controller.updateCustomer(customer,
-//                                inputCustomer.getValue(),
-//                                inputDescription.getValue(),
-//                                inputStart.getValue(),
-//                                inputEnd.getValue()
-//                    );
+                    controller.updateOrder(order,
+                            (Customer)inputCustomer.getValue(),
+                                inputDescription.getValue(),
+                                inputStart.getValue(),
+                                inputEnd.getValue(),
+                                inputCost.getValue(),
+                                inputStatus.getValue().toString()
+                    );
 
 
 
-//                    if(customer == null){
-//                        close(); //TODO think of something better
-//                    }
+                    if(order == null){
+                        close(); //TODO think of something better
+                    }
 
 
 
 
-//                    textCustomer.setValue(inputCustomer.getValue());
+                    textCustomer.setValue(String.valueOf(((Customer) inputCustomer.getValue()).getId()));
                     textDecription.setValue(inputDescription.getValue());
-//                    textEnd.setValue(inputEnd.getValue());
+                    textStart.setValue(inputStart.getValue().toString());
+                    if(inputEnd.getValue()!=null) {
+                        textEnd.setValue(inputEnd.getValue().toString());
+                    }
+                    textCost.setValue(inputCost.getValue());
+                    textStatus.setValue(inputStatus.getValue().toString());
 
                     replaceInputWithText(layout);
                     replaceSaveCancelWithRedaction(buttonLayout);
@@ -173,7 +191,12 @@ public class OrderWindow extends Window {
         cancelButton.addClickListener(new Button.ClickListener() {
             @Override
             public void buttonClick(Button.ClickEvent clickEvent) {
-                close();
+                if(order == null) {
+                    close();
+                } else {
+                    replaceInputWithText(layout);
+                    replaceSaveCancelWithRedaction(buttonLayout);
+                }
             }
         });
 
@@ -183,12 +206,8 @@ public class OrderWindow extends Window {
         removeButton.addClickListener(new Button.ClickListener() {
             @Override
             public void buttonClick(Button.ClickEvent clickEvent) {
-//                try {
-//                    controller.removeCustomer(customer);
-//                    close();
-//                } catch (CustomerService.DeleleException e) {
-//                    Notification.show("Невозможно удалить клиента, так как для него существуют заказы.");
-//                }
+                    controller.removeOrder(order);
+                    close();
             }
         });
 
@@ -251,6 +270,8 @@ public class OrderWindow extends Window {
         layout.replaceComponent(inputDescription, textDecription);
         layout.replaceComponent(inputStart, textStart);
         layout.replaceComponent(inputEnd, textEnd);
+        layout.replaceComponent(inputCost, textCost);
+        layout.replaceComponent(inputStatus, textStatus);
     }
 
     private void replaceRedactionWithSaveCancel(Layout layout){

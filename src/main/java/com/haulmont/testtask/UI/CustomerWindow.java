@@ -155,7 +155,12 @@ public class CustomerWindow extends Window {
         cancelButton.addClickListener(new Button.ClickListener() {
             @Override
             public void buttonClick(Button.ClickEvent clickEvent) {
-                close();
+                if(customer == null) {
+                    close();
+                } else {
+                    replaceSaveCancelWithRedaction(buttonLayout);
+                    replaceInputWithText(layout);
+                }
             }
         });
 
