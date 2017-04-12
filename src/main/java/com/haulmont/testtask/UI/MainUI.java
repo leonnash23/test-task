@@ -143,7 +143,7 @@ public class MainUI extends UI {
 
     public void updateOrderGrid(Order order, boolean remove) {
         if(remove){
-            orderGrid.getContainerDataSource().removeItem(getOrderItem(order)); //TODO WHYYYYYYY IT'S DOESN'T WORK EKSDONFFDSFSDNFDOSF??????
+            orderGrid.getContainerDataSource().removeItem(orderGrid.getSelectedRow());
         } else {
             Item item = getOrderItem(order);
             if (item != null) {
