@@ -3,17 +3,23 @@ package com.haulmont.testtask.UI;
 import com.haulmont.testtask.controller.Controller;
 import com.haulmont.testtask.model.Customer;
 import com.haulmont.testtask.model.Order;
+import com.haulmont.testtask.model.OrderStatus;
 import com.vaadin.annotations.Theme;
 import com.vaadin.data.Container;
 import com.vaadin.data.Item;
+import com.vaadin.data.Property;
 import com.vaadin.data.util.BeanItemContainer;
 import com.vaadin.data.util.ObjectProperty;
+import com.vaadin.data.util.filter.SimpleStringFilter;
 import com.vaadin.event.SelectionEvent;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.shared.ui.MarginInfo;
+import com.vaadin.shared.ui.combobox.FilteringMode;
 import com.vaadin.ui.*;
 import com.vaadin.ui.themes.ValoTheme;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
@@ -78,9 +84,61 @@ public class MainUI extends UI {
             }
         });
 
-        buttonLayout.addComponents(addButton);
+        ComboBox customerBox = new ComboBox("Клиент");
+        customerBox.setFilteringMode(FilteringMode.CONTAINS);
+        List<Customer> customerList = controller.getAllCustomers();
+        for(Customer customer:customerList) {
+            customerBox.getContainerDataSource().addItem(customer);
+        }
+        TextField description = new TextField("Описание");
+
+        ComboBox inputStatus = new ComboBox("Статус");
+        inputStatus.addItem(OrderStatus.PLANNED.toString());
+        inputStatus.addItem(OrderStatus.COMPLETED.toString());
+        inputStatus.addItem(OrderStatus.ACCEPTED_BY_CLIENT.toString());
+
+        Button confirm = new Button("Применить");
+        confirm.addStyleName("primary");
+        confirm.addClickListener(new Button.ClickListener() {
+            @Override
+            public void buttonClick(Button.ClickEvent clickEvent) {
+                List<Order> orders = controller.getAllOrders();
+                List<Order> newOrders = new ArrayList<>();
+                if(customerBox.getValue()==null && description.getValue().trim().equals("") && inputStatus.getValue()==null){
+                    newOrders.addAll(orders);
+                }
+
+                for(Order order:orders){
+                    boolean customer = true;
+                    boolean descr = true;
+                    boolean status = true;
+                    if(customerBox.getValue() != null && !order.getCustomer().equals(customerBox.getValue())){
+                       customer = false;
+                    }
+                    if(!description.getValue().trim().equals("") && !order.getDescription().toLowerCase()
+                           .contains(description.getValue().toLowerCase().trim())){
+                       descr = false;
+                    }
+                    if(inputStatus.getValue() != null && !order.getStatus().equals(inputStatus.getValue().toString())){
+                       status = false;
+                    }
+                    if(customer && descr && status){
+                        newOrders.add(order);
+                    }
+
+                }
+                orderGrid.getContainerDataSource().removeAllItems();
+                for(Order order:newOrders){
+                    updateOrderGrid(order, false);
+                }
+            }
+        });
+        buttonLayout.addComponents(addButton, customerBox, description, inputStatus, confirm);
+        buttonLayout.setComponentAlignment(addButton, Alignment.BOTTOM_LEFT);
+        buttonLayout.setComponentAlignment(confirm, Alignment.BOTTOM_RIGHT);
         orderLayout.addComponents(buttonLayout, orderGrid);
     }
+
 
     private void initOrderGrid(){
         List<Order> orders = controller.getAllOrders();
@@ -93,6 +151,7 @@ public class MainUI extends UI {
         orderGrid.addColumn("end", Date.class);
         orderGrid.addColumn("cost", Double.class);
         orderGrid.addColumn("status", String.class);
+
         for(Order order:orders){
             orderGrid.addRow(
                     order.getId(),
@@ -111,6 +170,8 @@ public class MainUI extends UI {
             }
         });
     }
+
+
 
     private void initCustomerGrid(){
         List<Customer> customers = controller.getAllCustomers();

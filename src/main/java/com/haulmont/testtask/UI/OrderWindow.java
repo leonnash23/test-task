@@ -8,6 +8,7 @@ import com.haulmont.testtask.model.Order;
 import com.haulmont.testtask.model.OrderStatus;
 import com.vaadin.data.Validator;
 import com.vaadin.data.validator.DoubleRangeValidator;
+import com.vaadin.data.validator.NullValidator;
 import com.vaadin.shared.ui.combobox.FilteringMode;
 import com.vaadin.shared.ui.datefield.Resolution;
 import com.vaadin.shared.ui.label.ContentMode;
@@ -90,11 +91,14 @@ public class OrderWindow extends Window {
         for(Customer customer:customerList) {
             inputCustomer.getContainerDataSource().addItem(customer);
         }
+        inputCustomer.addValidator(new NullValidator("Поле \"Клиент\" должно быть заполненно", false));
         inputCustomer.setSizeFull();
         inputDescription = new TextField();
         inputDescription.setSizeFull();
+        inputDescription.addValidator(new NullValidator("Поле \"Описание\" должно быть заполненно", false));
         inputStart = new DateField();
         inputStart.setResolution(Resolution.MINUTE);
+        inputStart.addValidator(new NullValidator("Поле \"Создание заказа\" должно быть заполненно", false));
         inputEnd = new DateField();
         inputEnd.setResolution(Resolution.MINUTE);
         inputCost = new TextField();
@@ -103,6 +107,7 @@ public class OrderWindow extends Window {
         inputStatus.addItem(OrderStatus.PLANNED.toString());
         inputStatus.addItem(OrderStatus.COMPLETED.toString());
         inputStatus.addItem(OrderStatus.ACCEPTED_BY_CLIENT.toString());
+        inputStatus.addValidator(new NullValidator("Поле \"Статус\" должно быть заполненно", false));
 
 
         textCustomer = new Label();
@@ -149,7 +154,11 @@ public class OrderWindow extends Window {
             @Override
             public void buttonClick(Button.ClickEvent clickEvent) {
                 try {
+                    inputCustomer.validate();
                     inputCost.validate();
+                    inputDescription.validate();
+                    inputStart.validate();
+                    inputStatus.validate();
 
                     controller.updateOrder(order,
                             (Customer)inputCustomer.getValue(),
