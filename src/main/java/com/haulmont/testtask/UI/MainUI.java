@@ -18,6 +18,7 @@ import com.vaadin.shared.ui.combobox.FilteringMode;
 import com.vaadin.ui.*;
 import com.vaadin.ui.themes.ValoTheme;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -166,7 +167,11 @@ public class MainUI extends UI {
             if(selectionEvent.getSelected().size()>0) {
                 Item item = orderGrid.getContainerDataSource().getItem(orderGrid.getContainerDataSource()
                         .getIdByIndex(Integer.parseInt(selectionEvent.getSelected().toArray()[0].toString()) - 1));
-                addWindow(new OrderWindow(controller, controller.getOrderById((Long) item.getItemProperty("id").getValue()), false));
+                try {
+                    addWindow(new OrderWindow(controller, controller.getOrderById((Long) item.getItemProperty("id").getValue()), false));
+                } catch (SQLException e) {
+                    Notification.show(e.getMessage());
+                }
             }
         });
     }

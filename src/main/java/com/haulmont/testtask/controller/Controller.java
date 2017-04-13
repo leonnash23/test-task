@@ -6,6 +6,7 @@ import com.haulmont.testtask.model.Order;
 import com.haulmont.testtask.services.CustomerService;
 import com.haulmont.testtask.services.OrderService;
 
+import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
 
@@ -57,7 +58,7 @@ public class Controller {
         mainUI.updateCustomerGrid(customer, true);
     }
 
-    public Order getOrderById(Long id){
+    public Order getOrderById(Long id) throws SQLException {
         return orderService.get(id);
     }
 
