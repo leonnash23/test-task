@@ -28,11 +28,21 @@ public class Controller {
     }
 
     public List<Customer> getAllCustomers(){
-        return customerService.getAll();
+        try {
+            return customerService.getAll();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     public List<Order> getAllOrders(){
-        return  orderService.getAll();
+        try {
+            return  orderService.getAll();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
 
@@ -48,18 +58,22 @@ public class Controller {
         customer.setSname(textSname);
         customer.setFname(textFname);
         customer.setPhone(Long.valueOf(textPhone));
-        customer = customerService.add(customer);
-        mainUI.updateCustomerGrid(customer,false);
+        try {
+            customer = customerService.add(customer);
+            mainUI.updateCustomerGrid(customer,false);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
         return customer;
     }
 
     public void removeCustomer(Customer customer) throws CustomerService.DeleleException {
-        customerService.remove(customer);
-        mainUI.updateCustomerGrid(customer, true);
-    }
-
-    public Order getOrderById(Long id) throws SQLException {
-        return orderService.get(id);
+        try {
+            customerService.remove(customer);
+            mainUI.updateCustomerGrid(customer, true);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     public Order updateOrder(Order order,
@@ -69,22 +83,31 @@ public class Controller {
                              Date end,
                              String cost,
                              String status) {
-            if(order == null){
-                order = new Order();
-            }
-            order.setCustomer(customer);
-            order.setDescription(description);
-            order.setStart(start);
-            order.setEnd(end);
-            order.setCost(Double.valueOf(cost));
-            order.setStatus(status);
+        if(order == null){
+            order = new Order();
+        }
+        order.setCustomer(customer);
+        order.setDescription(description);
+        order.setStart(start);
+        order.setEnd(end);
+        order.setCost(Double.valueOf(cost));
+        order.setStatus(status);
+        try {
             order = orderService.add(order);
             mainUI.updateOrderGrid(order,false);
-            return order;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return order;
     }
 
     public void removeOrder(Order order) {
-        orderService.remove(order);
-        mainUI.updateOrderGrid(order, true);
+        try {
+            orderService.remove(order);
+            mainUI.updateOrderGrid(order, true);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
+
 }

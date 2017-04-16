@@ -12,11 +12,9 @@ import com.vaadin.ui.*;
 /**
  * Created by leonid on 07.04.17.
  */
-public class CustomerWindow extends Window {
+class CustomerWindow extends Window {
 
-    private Controller controller;
-
-    private Customer customer;
+    private final Controller controller;
 
     private Label labelName;
     private Label labelSname;
@@ -45,7 +43,6 @@ public class CustomerWindow extends Window {
     public CustomerWindow(Controller controller, Customer customer, boolean save){
         super();
         this.controller = controller;
-        this.customer = customer;
         Layout layout = getFieldsLayout(customer, save);
         setWidth("30%");
         setHeight("50%");
@@ -103,79 +100,67 @@ public class CustomerWindow extends Window {
 
         redactionButton = new Button("Редактировать");
         redactionButton.addStyleName("primary");
-        redactionButton.addClickListener(new Button.ClickListener() {
-            @Override
-            public void buttonClick(Button.ClickEvent clickEvent) {
-                replaceTextWithInput(layout);
-                replaceRedactionWithSaveCancel(buttonLayout);
-            }
+        redactionButton.addClickListener((Button.ClickListener) clickEvent -> {
+            replaceTextWithInput(layout);
+            replaceRedactionWithSaveCancel(buttonLayout);
         });
         saveButton = new Button("Сохранить");
         saveButton.addStyleName("friendly");
-        saveButton.addClickListener(new Button.ClickListener() {
-            @Override
-            public void buttonClick(Button.ClickEvent clickEvent) {
-                try {
-                    inputName.validate();
-                    inputSname.validate();
-                    inputFname.validate();
-                    inputPhone.validate();
+        saveButton.addClickListener((Button.ClickListener) clickEvent -> {
+            try {
+                inputName.validate();
+                inputSname.validate();
+                inputFname.validate();
+                inputPhone.validate();
 
-                    controller.updateCustomer(customer,
-                                inputName.getValue(),
-                                inputSname.getValue(),
-                                inputFname.getValue(),
-                                inputPhone.getValue()
-                    );
+                controller.updateCustomer(customer,
+                            inputName.getValue(),
+                            inputSname.getValue(),
+                            inputFname.getValue(),
+                            inputPhone.getValue()
+                );
 
 
 
-                    if(customer == null){
-                        close(); //TODO think of something better
-                    }
-
-
-
-
-                    textName.setValue(inputName.getValue());
-                    textSname.setValue(inputSname.getValue());
-                    textFname.setValue(inputFname.getValue());
-                    textPhone.setValue(inputPhone.getValue());
-
-                    replaceInputWithText(layout);
-                    replaceSaveCancelWithRedaction(buttonLayout);
-                } catch (Validator.InvalidValueException e){
-                    Notification.show(e.getMessage());
+                if(customer == null){
+                    close(); //TODO think of something better
                 }
+
+
+
+
+                textName.setValue(inputName.getValue());
+                textSname.setValue(inputSname.getValue());
+                textFname.setValue(inputFname.getValue());
+                textPhone.setValue(inputPhone.getValue());
+
+                replaceInputWithText(layout);
+                replaceSaveCancelWithRedaction(buttonLayout);
+            } catch (Validator.InvalidValueException e){
+                Notification.show(e.getMessage());
             }
         });
 
         cancelButton = new Button("Отменить");
         cancelButton.addStyleName("danger");
-        cancelButton.addClickListener(new Button.ClickListener() {
-            @Override
-            public void buttonClick(Button.ClickEvent clickEvent) {
-                if(customer == null) {
-                    close();
-                } else {
-                    replaceSaveCancelWithRedaction(buttonLayout);
-                    replaceInputWithText(layout);
-                }
+        cancelButton.addClickListener((Button.ClickListener) clickEvent -> {
+            if(customer == null) {
+                close();
+            } else {
+                replaceSaveCancelWithRedaction(buttonLayout);
+                replaceInputWithText(layout);
             }
         });
 
 
         removeButton = new Button("Удалить");
         removeButton.addStyleName("danger");
-        removeButton.addClickListener(new Button.ClickListener() {
-            @Override
-            public void buttonClick(Button.ClickEvent clickEvent) {
-                try {
-                    controller.removeCustomer(customer);
-                    close();
-                } catch (CustomerService.DeleleException e) {
-                    Notification.show("Невозможно удалить клиента, так как для него существуют заказы.");
-                }
+        removeButton.addClickListener((Button.ClickListener) clickEvent -> {
+            try {
+                controller.removeCustomer(customer);
+                close();
+            } catch (CustomerService.DeleleException e) {
+                Notification.show("Невозможно удалить клиента, так как для него существуют заказы.");
             }
         });
 

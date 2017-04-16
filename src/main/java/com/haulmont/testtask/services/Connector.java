@@ -7,12 +7,12 @@ import java.sql.*;
 /**
  * Created by lech0816 on 13.04.2017.
  */
-public class Connector {
+class Connector {
     private static volatile Connector instance;
     private Connection conn;
     private volatile Statement statement;
 
-    public static Connection getInstance() {
+    static Connection getInstance() {
         Connector localInstance = instance;
         if (localInstance == null) {
             synchronized (Connector.class) {
@@ -31,9 +31,7 @@ public class Connector {
             conn = DriverManager.getConnection("jdbc:hsqldb:file:testdb");
             statement = conn.createStatement();
             createDB();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        } catch (SQLException e) {
+        } catch (ClassNotFoundException | SQLException e) {
             e.printStackTrace();
         }
     }
@@ -54,7 +52,7 @@ public class Connector {
 
     public static void main(String[] args) {
         OrderService orderService = OrderService.getInstance();
-        Order order = null;
+        Order order;
         try {
             order = orderService.get(17);
             System.out.println(order.toString());

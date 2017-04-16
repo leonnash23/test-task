@@ -3,14 +3,11 @@ package com.haulmont.testtask.services;
 
 import com.haulmont.testtask.model.Customer;
 
-import javax.persistence.EntityManager;
-import javax.persistence.Persistence;
-import javax.persistence.TypedQuery;
-import java.beans.Statement;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -22,7 +19,7 @@ public class CustomerService {
     private ResultSet resultSet;
     private static volatile CustomerService instance;
 
-    public static CustomerService getInstance() {
+    static CustomerService getInstance() {
         CustomerService localInstance = instance;
         if (localInstance == null) {
             synchronized (Connector.class) {
@@ -41,14 +38,30 @@ public class CustomerService {
         conn = Connector.getInstance();
     }
 
-    public Customer add(Customer customer){
-//        manager.getTransaction().begin();
-//        customer = manager.merge(customer);
-//        manager.getTransaction().commit();
+    public Customer add(Customer customer) throws SQLException {
+        if(customer.getId() == null){
+            statement = conn.prepareStatement("INSERT INTO CUSTOMERS(NAME , SNAME, FNAME, PHONE) VALUES(?,?,?,?)", java.sql.Statement.RETURN_GENERATED_KEYS);
+            statement.setString(1, customer.getName());
+            statement.setString(2, customer.getSname());
+            statement.setString(3, customer.getFname());
+            statement.setLong(4, customer.getPhone());
+            statement.executeUpdate();
+            resultSet = statement.getGeneratedKeys();
+            resultSet.next();
+            customer.setId(resultSet.getLong(1));
+        } else {
+            statement = conn.prepareStatement("UPDATE CUSTOMERS SET NAME=?, SNAME=?, FNAME=?, PHONE=? WHERE ID=?");
+            statement.setString(1,customer.getName());
+            statement.setString(2,customer.getSname());
+            statement.setString(3,customer.getFname());
+            statement.setLong(4,customer.getPhone());
+            statement.setLong(5,customer.getId());
+            statement.executeUpdate();
+        }
         return customer;
     }
 
-    public Customer get(long id) throws SQLException {
+    Customer get(long id) throws SQLException {
         statement = conn.prepareStatement("SELECT * FROM CUSTOMERS WHERE ID = ?");
         statement.setLong(1,id);
         resultSet = statement.executeQuery();
@@ -65,21 +78,30 @@ public class CustomerService {
         }
     }
 
-    public void remove(Customer customer) throws DeleleException {
-//        try {
-//            manager.getTransaction().begin();
-//            manager.remove(manager.contains(customer) ? customer : manager.merge(customer));
-//            manager.getTransaction().commit();
-//        } catch (javax.persistence.RollbackException e){
-//            manager.getTransaction().rollback();
-//            throw  new DeleleException();
-//        }
+    public void remove(Customer customer) throws DeleleException, SQLException {
+        try {
+            statement = conn.prepareStatement("DELETE FROM CUSTOMERS WHERE ID=?");
+            statement.setLong(1, customer.getId());
+            statement.execute();
+        } catch (java.sql.SQLIntegrityConstraintViolationException e){
+            throw  new DeleleException();
+        }
     }
 
-    public List<Customer> getAll() {
-//        TypedQuery<Customer> namedQuery = manager.createNamedQuery("Customer.getAll", Customer.class);
-//        return namedQuery.getResultList();
-        return null;
+    public List<Customer> getAll() throws SQLException {
+        List<Customer> customers = new ArrayList<>();
+        statement = conn.prepareStatement("SELECT * FROM CUSTOMERS");
+        resultSet = statement.executeQuery();
+        while (resultSet.next()){
+            Customer customer = new Customer();
+            customer.setId(resultSet.getLong("id"));
+            customer.setName(resultSet.getString("name"));
+            customer.setSname(resultSet.getString("sname"));
+            customer.setFname(resultSet.getString("fname"));
+            customer.setPhone(resultSet.getLong("phone"));
+            customers.add(customer);
+        }
+        return customers;
     }
 
     public class DeleleException extends Exception{

@@ -14,6 +14,6 @@ public class StringOnlyValidator extends AbstractStringValidator {
     @Override
     protected boolean isValidValue(String s) {
         s = s.trim();
-        return s.matches("[a-zA-Z-а-яА-Я]+");
+        return s.matches("[a-zA-Z-а-яА-ЯёЁ]+");
     }
 }

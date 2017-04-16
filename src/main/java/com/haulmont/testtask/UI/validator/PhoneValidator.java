@@ -12,7 +12,6 @@ public class PhoneValidator extends AbstractStringValidator {
 
     @Override
     protected boolean isValidValue(String s) {
-        //TODO каким может быть номер? Да любым...
         return s.matches("[0-9]+");
     }
 }

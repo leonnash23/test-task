@@ -1,13 +1,11 @@
 package com.haulmont.testtask.UI;
 
 import com.haulmont.testtask.UI.validator.CostValidator;
-import com.haulmont.testtask.UI.validator.PhoneValidator;
 import com.haulmont.testtask.controller.Controller;
 import com.haulmont.testtask.model.Customer;
 import com.haulmont.testtask.model.Order;
 import com.haulmont.testtask.model.OrderStatus;
 import com.vaadin.data.Validator;
-import com.vaadin.data.validator.DoubleRangeValidator;
 import com.vaadin.data.validator.NullValidator;
 import com.vaadin.shared.ui.combobox.FilteringMode;
 import com.vaadin.shared.ui.datefield.Resolution;
@@ -19,11 +17,9 @@ import java.util.List;
 /**
  * Created by leonid on 07.04.17.
  */
-public class OrderWindow extends Window {
+class OrderWindow extends Window {
 
-    private Controller controller;
-
-    private Order order;
+    private final Controller controller;
 
     private Label labelCustomer;
     private Label labelDescription;
@@ -53,10 +49,9 @@ public class OrderWindow extends Window {
 
 
 
-    public OrderWindow(Controller controller, Order order, boolean save){
+    public OrderWindow(Controller controller, Order order, boolean save) {
         super();
         this.controller = controller;
-        this.order = order;
         Layout layout = getFieldsLayout(order, save);
         setWidth("30%");
         setHeight("50%");
@@ -118,7 +113,7 @@ public class OrderWindow extends Window {
         textStatus = new Label();
 
         if(order != null){
-            textCustomer.setValue(String.valueOf(order.getCustomer().getId()));
+            textCustomer.setValue(order.getCustomer().toString());
             textDecription.setValue(order.getDescription());
             textStart.setValue(order.getStart().toString());
             if(order.getEnd() != null) {
@@ -141,83 +136,71 @@ public class OrderWindow extends Window {
 
         redactionButton = new Button("Редактировать");
         redactionButton.addStyleName("primary");
-        redactionButton.addClickListener(new Button.ClickListener() {
-            @Override
-            public void buttonClick(Button.ClickEvent clickEvent) {
-                replaceTextWithInput(layout);
-                replaceRedactionWithSaveCancel(buttonLayout);
-            }
+        redactionButton.addClickListener((Button.ClickListener) clickEvent -> {
+            replaceTextWithInput(layout);
+            replaceRedactionWithSaveCancel(buttonLayout);
         });
         saveButton = new Button("Сохранить");
         saveButton.addStyleName("friendly");
-        saveButton.addClickListener(new Button.ClickListener() {
-            @Override
-            public void buttonClick(Button.ClickEvent clickEvent) {
-                try {
-                    inputCustomer.validate();
-                    inputCost.validate();
-                    inputDescription.validate();
-                    inputStart.validate();
-                    inputStatus.validate();
+        saveButton.addClickListener((Button.ClickListener) clickEvent -> {
+            try {
+                inputCustomer.validate();
+                inputCost.validate();
+                inputDescription.validate();
+                inputStart.validate();
+                inputStatus.validate();
 
-                    controller.updateOrder(order,
-                            (Customer)inputCustomer.getValue(),
-                                inputDescription.getValue(),
-                                inputStart.getValue(),
-                                inputEnd.getValue(),
-                                inputCost.getValue(),
-                                inputStatus.getValue().toString()
-                    );
+                controller.updateOrder(order,
+                        (Customer)inputCustomer.getValue(),
+                            inputDescription.getValue(),
+                            inputStart.getValue(),
+                            inputEnd.getValue(),
+                            inputCost.getValue(),
+                            inputStatus.getValue().toString()
+                );
 
 
 
-                    if(order == null){
-                        close(); //TODO think of something better
-                    }
-
-
-
-
-                    textCustomer.setValue(String.valueOf(((Customer) inputCustomer.getValue()).getId()));
-                    textDecription.setValue(inputDescription.getValue());
-                    textStart.setValue(inputStart.getValue().toString());
-                    if(inputEnd.getValue()!=null) {
-                        textEnd.setValue(inputEnd.getValue().toString());
-                    }
-                    textCost.setValue(inputCost.getValue());
-                    textStatus.setValue(inputStatus.getValue().toString());
-
-                    replaceInputWithText(layout);
-                    replaceSaveCancelWithRedaction(buttonLayout);
-                } catch (Validator.InvalidValueException e){
-                    Notification.show(e.getMessage());
+                if(order == null){
+                    close(); //TODO think of something better
                 }
+
+
+
+
+                textCustomer.setValue(String.valueOf(((Customer) inputCustomer.getValue()).getId()));
+                textDecription.setValue(inputDescription.getValue());
+                textStart.setValue(inputStart.getValue().toString());
+                if(inputEnd.getValue()!=null) {
+                    textEnd.setValue(inputEnd.getValue().toString());
+                }
+                textCost.setValue(inputCost.getValue());
+                textStatus.setValue(inputStatus.getValue().toString());
+
+                replaceInputWithText(layout);
+                replaceSaveCancelWithRedaction(buttonLayout);
+            } catch (Validator.InvalidValueException e){
+                Notification.show(e.getMessage());
             }
         });
 
         cancelButton = new Button("Отменить");
         cancelButton.addStyleName("danger");
-        cancelButton.addClickListener(new Button.ClickListener() {
-            @Override
-            public void buttonClick(Button.ClickEvent clickEvent) {
-                if(order == null) {
-                    close();
-                } else {
-                    replaceInputWithText(layout);
-                    replaceSaveCancelWithRedaction(buttonLayout);
-                }
+        cancelButton.addClickListener((Button.ClickListener) clickEvent -> {
+            if(order == null) {
+                close();
+            } else {
+                replaceInputWithText(layout);
+                replaceSaveCancelWithRedaction(buttonLayout);
             }
         });
 
 
         removeButton = new Button("Удалить");
         removeButton.addStyleName("danger");
-        removeButton.addClickListener(new Button.ClickListener() {
-            @Override
-            public void buttonClick(Button.ClickEvent clickEvent) {
-                    controller.removeOrder(order);
-                    close();
-            }
+        removeButton.addClickListener((Button.ClickListener) clickEvent -> {
+                controller.removeOrder(order);
+                close();
         });
 
         if(save) {
@@ -297,4 +280,5 @@ public class OrderWindow extends Window {
 
         return new Label("<b>"+text+"</b>", ContentMode.HTML);
     }
+
 }
